@@ -25,7 +25,18 @@ public class Player {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getPlayerNumber() {
+        return playerNumber;
+    }
+
     public int placeAPiece(){
         //Returns the column number the player wishes to place a piece in.
+
+        //Tempoarary and only for testing purposes
+        return 0;
     }
 }
