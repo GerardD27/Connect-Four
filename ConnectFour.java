@@ -11,7 +11,7 @@ public class ConnectFour {
     private final int[] piecesInColumns;
 
 
-    public ConnectFour() {
+    public ConnectFour(Player playerOne, Player playerTwo) {
         this.gameBoard = new int[ROWS][COLUMNS];
         //Initialize each position in the game board to empty
         for(int i = 0; i < ROWS; i++){
@@ -21,6 +21,9 @@ public class ConnectFour {
         }
         //An array to represent how many pieces are currently in each column
         this.piecesInColumns = new int[COLUMNS];
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
+
     }
 
 
@@ -30,6 +33,9 @@ public class ConnectFour {
         if(column < 0 || column >= COLUMNS ){
             throw new ArrayIndexOutOfBoundsException("Column choice must be between positive and be no greater than 6");
         }
+
+        int corespondingRow = (COLUMNS - 1) - piecesInColumns[column];
+
 
     }
 
@@ -44,6 +50,9 @@ public class ConnectFour {
         //Return 1 if player one wins
         //Return 2 if player 2 wins
         //Also check for and include a return for a draw(full board but no winner)
+
+        //Again just for testing purposes
+        return 0;
     }
 
     //Should the validations return the color they find or the number of the player that won instead of
@@ -93,6 +102,23 @@ public class ConnectFour {
 
     private boolean validateDiagonals(){
 
+
+        //Temporary, for testing main purposes only
+        return false;
+
+    }
+
+    private boolean isColumnFull(int columnNumber){
+
+        if(piecesInColumns[columnNumber] == 6){
+            return true;
+        }
+
+        else{
+            return false;
+        }
+
+
     }
 
     private boolean isFull(){
@@ -106,7 +132,12 @@ public class ConnectFour {
     }
 
     public void printGameBoard(){
-
+        for(int i = 0; i < ROWS; i++){
+            for (int j = 0; j < COLUMNS; j++){
+                System.out.print(gameBoard[i][j] +" ");
+            }
+            System.out.println();
+        }
     }
 
     public void clearBoard(){
