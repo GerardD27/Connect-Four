@@ -101,9 +101,98 @@ public class ConnectFour {
     }
 
     private boolean validateDiagonals(){
+        //Start by moving across the first row(left to right), and check all diagonals that can fit more than 4 pieces.
+        for(int i = 3; i <COLUMNS;i++){
+            int j = 0; // Check each left diagonal in the first row
+            int k = i;
+            while(k - 3 >= 0 && j+3 < ROWS){
+                Set<Integer> pieces = new HashSet<>();
+                pieces.add(gameBoard[j][k]);
+                pieces.add(gameBoard[j+1][k-1]);
+                pieces.add(gameBoard[j+2][k-2]);
+                pieces.add(gameBoard[j+3][k-3]);
+                if(pieces.size() == 1 && pieces.contains(-1) == false){
+                    //change this to return winners piece color/player number
+                    return true;
+                }
+                j++;
+                k--;
+
+            }
+
+        }
+
+        //Then move down the rightmost column, checking each diagonal(starting with the second row, as the previous loop
+        //will have covered the first row's rightmost diagonal
+        for(int i = 1; i< 3;/*number of diagonals in the row with 4 or more slots*/i++ ){
+            //validate each diagonal here
+            int j = i; // set the row number to change with i
+            int k = COLUMNS - 1;// only traverse the last column
+
+            while(j + 3 < ROWS && k - 3 >= 0){
+                Set<Integer> pieces = new HashSet<>();
+                pieces.add(gameBoard[j][k]);
+                pieces.add(gameBoard[j+1][k-1]);
+                pieces.add(gameBoard[j+2][k-2]);
+                pieces.add(gameBoard[j+3][k-3]);
+
+                if(pieces.size() == 1 && pieces.contains(-1) == false){
+                    //Change this to return the number of the player who won
+                    return true;
+                }
+                j++;
+                k--;
+            }
+        }
+
+        //Now we repeat the above process, but starting from the top right instead of the top left of the board;
+        for(int i = COLUMNS - 4; i >=0; i--){
+            //Moving across the top row from right to left, validate each diagonal
+            int j = 0; //Move across the first row
+            int k = i;// set the column number to change with i
+
+            while(j + 3 < ROWS && k + 3 < COLUMNS){
+                Set<Integer> pieces = new HashSet<>();
+                pieces.add(gameBoard[j][k]);
+                pieces.add(gameBoard[j+1][k+1]);
+                pieces.add(gameBoard[j+2][k+2]);
+                pieces.add(gameBoard[j+3][k+3]);
+
+                if(pieces.size() == 1 && pieces.contains(-1) == false){
+                    //Change this to return the number of the player who won
+                    return true;
+                }
+                j++;
+                k++;
+
+            }
+        }
+
+        //Lastly, move down the leftmost column and check each diagonal
+        for(int i = 1; i < 3; i++){
+            //validate each diagonal here
+            int j = i;// set the row number to change with i;
+            int k = 0;// before entering the while loop, begin at the first column(column 0);
+            while(j + 3 < ROWS && k + 3 < COLUMNS){
+                Set<Integer> pieces = new HashSet<>();
+                pieces.add(gameBoard[j][k]);
+                pieces.add(gameBoard[j+1][k+1]);
+                pieces.add(gameBoard[j+2][k+2]);
+                pieces.add(gameBoard[j+3][k+3]);
+
+                if(pieces.size() == 1 && pieces.contains(-1) == false){
+                    //return the players number.
+                    return true;
+                }
+
+            }
+            j++;
+            k++;
+        }
 
 
         //Temporary, for testing main purposes only
+        //return -1
         return false;
 
     }
