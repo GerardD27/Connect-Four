@@ -1,3 +1,5 @@
+import jdk.internal.joptsimple.internal.Rows;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,6 +10,8 @@ public class ConnectFour {
     private Player playerTwo;
     private static final int ROWS = 6;
     private static final int COLUMNS = 7;
+    private static final int RED = 1;
+    private static final int YELLOW = 2;
     private final int[] piecesInColumns;
 
 
@@ -27,15 +31,26 @@ public class ConnectFour {
     }
 
 
-    public void makeMove(int column){
+    public void makeMove(Player player, int column){
         //Since row position is determined by how many pieces are currently in a given column,
         //We only need to choose a column position and the row position will be determined as a result.
         if(column < 0 || column >= COLUMNS ){
             throw new ArrayIndexOutOfBoundsException("Column choice must be between positive and be no greater than 6");
         }
 
-        int corespondingRow = (COLUMNS - 1) - piecesInColumns[column];
+        if(isColumnFull(column)){
+            System.out.println("Error, that column is already full!");
+        }
 
+        else{
+            // place the piece in the available row closest to the bottom
+            for(int i = ROWS - 1; i >= 0; i--){
+                if(gameBoard[i][column] == -1){
+                    gameBoard[i][column] = player.getPlayerNumber(); //Temporary and probably should be changed
+                    break;
+                }
+            }
+        }
 
     }
 
@@ -56,7 +71,7 @@ public class ConnectFour {
     }
 
     //Should the validations return the color they find or the number of the player that won instead of
-    private boolean validateRows(){
+    private int validateRows(){
         for(int i = 0; i < ROWS; i++){
             for(int j = 0; j < COLUMNS - 3; j++){
             //Use a hashset to check if every four numbers in a row are the same
@@ -65,42 +80,52 @@ public class ConnectFour {
                 pieceSet.add(gameBoard[i][j+1]);
                 pieceSet.add(gameBoard[i][j+2]);
                 pieceSet.add(gameBoard[i][j+3]);
-                if(pieceSet.size() == 1 && pieceSet.contains(-1) == false){
-                    //We have a winner
-                    return true;
-                    //Consider returning which player(or player piece constant value) won
+                if(pieceSet.size() == 1){
+
+                   if(pieceSet.contains(RED)){
+                       //Player One Wins
+                       return RED;
+                   }
+                   else if(pieceSet.contains(YELLOW)){
+                       //Player Two Wins
+                       return YELLOW;
+                   }
                 }
             }
         }
-        return false;
+
+        return -1;
     }
 
-    private boolean validateColumns(){
+    private int validateColumns(){
         for(int j = 0; j < COLUMNS; j++){
-            for(int i = ROWS - 1; i >= 3; i++){
-                if(piecesInColumns[j] < 4){
-                    continue;
-                    //If the current column has less than 4 pieces in it we don't need to check it
-                }
+            for(int i = ROWS - 1; i >= 3; i--){
 
                 Set<Integer> pieceSet = new HashSet<Integer>();
                 pieceSet.add(gameBoard[i][j]);
-                pieceSet.add(gameBoard[i+1][j]);
-                pieceSet.add(gameBoard[i+2][j]);
-                pieceSet.add(gameBoard[i+3][j]);
-                if(pieceSet.size() == 1 && pieceSet.contains(-1) == false){
+                pieceSet.add(gameBoard[i-1][j]);
+                pieceSet.add(gameBoard[i-2][j]);
+                pieceSet.add(gameBoard[i-3][j]);
+                if(pieceSet.size() == 1){
                     //We have a winner
-                    return true;
+                     if(pieceSet.contains(RED)){
+                         //Player 1 Wins
+                         return RED;
+                     }
+
+                     else if(pieceSet.contains(YELLOW)){
+                         //Player 2 Wins
+                         return YELLOW;
+                     }
                 }
-
-
             }
         }
 
-        return false;
+        //No winner found here
+        return -1;
     }
 
-    private boolean validateDiagonals(){
+    private int validateDiagonals(){
         //Start by moving across the first row(left to right), and check all diagonals that can fit more than 4 pieces.
         for(int i = 3; i <COLUMNS;i++){
             int j = 0; // Check each left diagonal in the first row
@@ -111,9 +136,14 @@ public class ConnectFour {
                 pieces.add(gameBoard[j+1][k-1]);
                 pieces.add(gameBoard[j+2][k-2]);
                 pieces.add(gameBoard[j+3][k-3]);
-                if(pieces.size() == 1 && pieces.contains(-1) == false){
-                    //change this to return winners piece color/player number
-                    return true;
+                if(pieces.size() == 1){
+                    if(pieces.contains(RED)){
+                        return RED;
+                    }
+
+                    else if(pieces.contains(YELLOW)){
+                        return YELLOW;
+                    }
                 }
                 j++;
                 k--;
@@ -136,9 +166,13 @@ public class ConnectFour {
                 pieces.add(gameBoard[j+2][k-2]);
                 pieces.add(gameBoard[j+3][k-3]);
 
-                if(pieces.size() == 1 && pieces.contains(-1) == false){
-                    //Change this to return the number of the player who won
-                    return true;
+                if(pieces.size() == 1){
+                    if(pieces.contains(RED)){
+                        return RED;
+                    }
+                    else if(pieces.contains(YELLOW)){
+                        return YELLOW;
+                    }
                 }
                 j++;
                 k--;
@@ -158,9 +192,14 @@ public class ConnectFour {
                 pieces.add(gameBoard[j+2][k+2]);
                 pieces.add(gameBoard[j+3][k+3]);
 
-                if(pieces.size() == 1 && pieces.contains(-1) == false){
-                    //Change this to return the number of the player who won
-                    return true;
+                if(pieces.size() == 1){
+                   if(pieces.contains(RED)){
+                       return RED;
+                   }
+
+                   else if(pieces.contains(YELLOW)){
+                       return YELLOW;
+                   }
                 }
                 j++;
                 k++;
@@ -180,40 +219,40 @@ public class ConnectFour {
                 pieces.add(gameBoard[j+2][k+2]);
                 pieces.add(gameBoard[j+3][k+3]);
 
-                if(pieces.size() == 1 && pieces.contains(-1) == false){
-                    //return the players number.
-                    return true;
+                if(pieces.size() == 1){
+                   if(pieces.contains(RED)){
+                       return RED;
+                   }
+                   else if(pieces.contains(YELLOW)){
+                       return YELLOW;
+                   }
                 }
-
             }
             j++;
             k++;
         }
 
-
-        //Temporary, for testing main purposes only
-        //return -1
-        return false;
+        return -1;
 
     }
 
     private boolean isColumnFull(int columnNumber){
-
-        if(piecesInColumns[columnNumber] == 6){
-            return true;
-        }
-
-        else{
+        //Based on the way pieces are placed in a game of connect four, if the very first row of a column has
+        // a piece in it, the column must be full.
+        if(gameBoard[0][columnNumber] == -1){
             return false;
         }
-
-
+        else{
+            return true;
+        }
     }
 
-    private boolean isFull(){
-        for(int numPieces: piecesInColumns){
-            if(numPieces < ROWS){
-                return false;
+    private boolean isBoardFull(){
+        for(int i = 0; i < ROWS;i++){
+            for(int j = 0; j < COLUMNS; j++){
+                if(gameBoard[i][j] == -1){
+                    return false;
+                }
             }
         }
 
@@ -221,15 +260,26 @@ public class ConnectFour {
     }
 
     public void printGameBoard(){
+        //Display the current position of the board
         for(int i = 0; i < ROWS; i++){
             for (int j = 0; j < COLUMNS; j++){
-                System.out.print(gameBoard[i][j] +" ");
+                //System.out.print(gameBoard[i][j] +" ");
+                if(gameBoard[i][j] == RED){
+                    System.out.print('R');
+                }
+                else if(gameBoard[i][j] == YELLOW){
+                    System.out.print('Y');
+                }
+                else{
+                    System.out.print('-');
+                }
             }
             System.out.println();
         }
     }
 
     public void clearBoard(){
+        //Reset all board positions to -1
         for(int i = 0; i < ROWS; i++){
             for(int j = 0; i < COLUMNS; i++){
                 gameBoard[i][j] = -1;
