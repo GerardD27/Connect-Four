@@ -1,4 +1,3 @@
-import jdk.internal.joptsimple.internal.Rows;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,15 +30,21 @@ public class ConnectFour {
     }
 
 
-    public void makeMove(Player player, int column){
+    public boolean makeMove(Player player, int column){
         //Since row position is determined by how many pieces are currently in a given column,
         //We only need to choose a column position and the row position will be determined as a result.
+
+        //Decrement the column value by 1, user chooses the first column by enetering 1, not 0
+        column--;
+
         if(column < 0 || column >= COLUMNS ){
-            throw new ArrayIndexOutOfBoundsException("Column choice must be between positive and be no greater than 6");
+            System.out.println("Column choice must be between positive and be no greater than 6!");
+            return false;
         }
 
         if(isColumnFull(column)){
-            System.out.println("Error, that column is already full!");
+            System.out.println("That column is already full!");
+            return false;
         }
 
         else{
@@ -50,6 +55,8 @@ public class ConnectFour {
                     break;
                 }
             }
+
+            return true;
         }
 
     }
@@ -66,12 +73,25 @@ public class ConnectFour {
         //Return 2 if player 2 wins
         //Also check for and include a return for a draw(full board but no winner)
 
-        //Again just for testing purposes
-        return 0;
+        int checkRows = validateRows();
+        int checkColumns = validateColumns();
+        int checkDiagonals = validateDiagonals();
+       if(checkRows == 1 || checkColumns == 1 || checkDiagonals == 1){
+           return 1;
+       }
+
+       else if(checkRows == 2 || checkColumns == 2 || checkDiagonals == 2){
+           return 2;
+       }
+
+       else{
+           return -1;
+       }
     }
 
     //Should the validations return the color they find or the number of the player that won instead of
     private int validateRows(){
+        //System.out.println("Now validating rows");
         for(int i = 0; i < ROWS; i++){
             for(int j = 0; j < COLUMNS - 3; j++){
             //Use a hashset to check if every four numbers in a row are the same
@@ -98,6 +118,7 @@ public class ConnectFour {
     }
 
     private int validateColumns(){
+        //System.out.println("Now validating columns");
         for(int j = 0; j < COLUMNS; j++){
             for(int i = ROWS - 1; i >= 3; i--){
 
@@ -127,6 +148,7 @@ public class ConnectFour {
 
     private int validateDiagonals(){
         //Start by moving across the first row(left to right), and check all diagonals that can fit more than 4 pieces.
+        //System.out.println("Now validating diagonals left to right");
         for(int i = 3; i <COLUMNS;i++){
             int j = 0; // Check each left diagonal in the first row
             int k = i;
@@ -179,6 +201,8 @@ public class ConnectFour {
             }
         }
 
+        //System.out.println("Now validating diagonals right to left");
+
         //Now we repeat the above process, but starting from the top right instead of the top left of the board;
         for(int i = COLUMNS - 4; i >=0; i--){
             //Moving across the top row from right to left, validate each diagonal
@@ -227,9 +251,11 @@ public class ConnectFour {
                        return YELLOW;
                    }
                 }
+
+                j++;
+                k++;
             }
-            j++;
-            k++;
+
         }
 
         return -1;
@@ -260,28 +286,32 @@ public class ConnectFour {
     }
 
     public void printGameBoard(){
+        System.out.println("==============================");
         //Display the current position of the board
+        System.out.println("1 2 3 4 5 6 7");
         for(int i = 0; i < ROWS; i++){
             for (int j = 0; j < COLUMNS; j++){
                 //System.out.print(gameBoard[i][j] +" ");
                 if(gameBoard[i][j] == RED){
-                    System.out.print('R');
+                    System.out.print("R ");
                 }
                 else if(gameBoard[i][j] == YELLOW){
-                    System.out.print('Y');
+                    System.out.print("Y ");
                 }
                 else{
-                    System.out.print('-');
+                    System.out.print("- ");
                 }
             }
             System.out.println();
         }
+
+        System.out.println("==============================");
     }
 
     public void clearBoard(){
         //Reset all board positions to -1
         for(int i = 0; i < ROWS; i++){
-            for(int j = 0; i < COLUMNS; i++){
+            for(int j = 0; j < COLUMNS; j++){
                 gameBoard[i][j] = -1;
             }
         }
