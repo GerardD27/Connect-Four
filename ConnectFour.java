@@ -1,8 +1,7 @@
-import java.util.HashSet;
-import java.util.Set;
 
 public class ConnectFour {
     private final int[][] gameBoard;
+    private int[] piecesInColumn; // Each index keeps track of how many game pieces are currently in the corresponding column
     private static final int ROWS = 6;
     private static final int COLUMNS = 7;
     private static final int RED = 1;
@@ -10,12 +9,14 @@ public class ConnectFour {
 
     public ConnectFour(Player playerOne, Player playerTwo) {
         this.gameBoard = new int[ROWS][COLUMNS];
+        this.piecesInColumn = new int[COLUMNS];
         //Initialize each position in the game board to empty
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLUMNS; j++) {
                 gameBoard[i][j] = -1;
             }
         }
+
     }
 
     public boolean makeMove(Player player, int column) {
@@ -27,7 +28,7 @@ public class ConnectFour {
 
         //Check if the column chosen is valid
         if (column < 0 || column >= COLUMNS) {
-            System.out.println("Column choice must be between positive and be no greater than 6!");
+            System.out.println("Column choice must be between 1 and 7 !");
             return false;
         }
 
@@ -39,212 +40,174 @@ public class ConnectFour {
         /*Otherwise, start from the bottom of the column and change the value in
         the first open row to the player's number*/
         else {
-            for (int i = ROWS - 1; i >= 0; i--) {
-                if (gameBoard[i][column] == -1) {
-                    gameBoard[i][column] = player.getPlayerNumber();
-                    break;
-                }
-            }
+//            for (int i = ROWS - 1; i >= 0; i--) {
+//                if (gameBoard[i][column] == -1) {
+//                    gameBoard[i][column] = player.getPlayerNumber();
+//                    break;
+//                }
+//            }
+//            return true;
+            int nextOpenRow = ROWS - 1 - piecesInColumn[column];
+            gameBoard[nextOpenRow][column] = player.getPlayerNumber();
+            piecesInColumn[column]++;
             return true;
         }
 
     }
 
-    public int validateGameBoard() {
-        //1.) Check each row for four sequential pieces of the same color
-        //2.) Check each column for four sequential pieces of the same color
-        //3.) check each diagonal(with more than four spaces along it) for four sequential pieces of the same color
-        //Return -1 if no current winner
-        //Return 0 if the board is full, indicating a tie
-        //Return 1 if player one wins
-        //Return 2 if player 2 wins
 
-        if (isBoardFull()) {
-            System.out.println("The board is full!");
-            return 0;
-        }
-        int checkRows = validateRows();
-        int checkColumns = validateColumns();
-        int checkDiagonals = validateDiagonals();
-        if (checkRows == 1 || checkColumns == 1 || checkDiagonals == 1) {
-            return 1;
-        } else if (checkRows == 2 || checkColumns == 2 || checkDiagonals == 2) {
-            return 2;
-        } else {
-            return -1;
-        }
-    }
+    public int checkForWinner(int latestMove){
 
-    private int validateRows() {
-        //System.out.println("Now validating rows");
-        //To validate the rows we do the following:
-        //1.) For each row, we select a slice of 4 columns.
-        //2.) We place each of these column values in a hash set.
-        //3.) Since hash sets do not allow duplicates, we will easily know if our group of 4 were the same number(color)
-        //4.) We repeat this process for each group of four columns in the row, for every row of the board.
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLUMNS - 3; j++) {
-                Set<Integer> pieceSet = new HashSet<Integer>();
-                pieceSet.add(gameBoard[i][j]);
-                pieceSet.add(gameBoard[i][j + 1]);
-                pieceSet.add(gameBoard[i][j + 2]);
-                pieceSet.add(gameBoard[i][j + 3]);
-                if (pieceSet.size() == 1) {
+        int currentCol = latestMove - 1; //Remember, the user sees the columns numbered 1 -> 7 but our array is 0 indexed
+        int currentRow = ROWS - piecesInColumn[currentCol]; // Determine which row the last piece was placed in
 
-                    if (pieceSet.contains(RED)) {
-                        //Player One Wins
-                        return RED;
-                    } else if (pieceSet.contains(YELLOW)) {
-                        //Player Two Wins
-                        return YELLOW;
-                    }
-                }
-            }
-        }
+       int rows =  checkRows(currentRow);
+       int columns =  checkColumns(currentCol);
+       int diagonals =  checkDiagonals(currentRow,currentCol);
+
+
+       if(rows == RED || columns == RED || diagonals == RED){
+           return RED;
+       }
+
+       if(rows == YELLOW || columns == YELLOW || diagonals == YELLOW){
+           return YELLOW;
+       }
+
+       //Otherwise we don't have a winner yer
 
         return -1;
     }
 
-    private int validateColumns() {
-        //System.out.println("Now validating columns");
-        //To validate the columns, we use a similar has set validation process to the row validation.
-        // The key difference is, for every column, we select a slice of 4 rows.
-        // each time we grab one of these slices, we check the hash set exactly the way we did the the row validator
-        for (int j = 0; j < COLUMNS; j++) {
-            for (int i = ROWS - 1; i >= 3; i--) {
+    private int checkRows(int currentRow){
+        //Obtain the row and column of the latest move
 
-                Set<Integer> pieceSet = new HashSet<Integer>();
-                pieceSet.add(gameBoard[i][j]);
-                pieceSet.add(gameBoard[i - 1][j]);
-                pieceSet.add(gameBoard[i - 2][j]);
-                pieceSet.add(gameBoard[i - 3][j]);
-                if (pieceSet.size() == 1) {
-                    //We have a winner
-                    if (pieceSet.contains(RED)) {
-                        //Player 1 Wins
-                        return RED;
-                    } else if (pieceSet.contains(YELLOW)) {
-                        //Player 2 Wins
-                        return YELLOW;
-                    }
-                }
+        for (int i = 0; i < COLUMNS - 3; i++) {
+
+            if (gameBoard[currentRow][i] == RED &&
+                    gameBoard[currentRow][i + 1] == RED &&
+                    gameBoard[currentRow][i + 2] == RED &&
+                    gameBoard[currentRow][i + 3] == RED) {
+
+                return RED;
+            }
+
+            if (gameBoard[currentRow][i] == YELLOW &&
+                    gameBoard[currentRow][i + 1] == YELLOW &&
+                    gameBoard[currentRow][i + 2] == YELLOW &&
+                    gameBoard[currentRow][i + 3] == YELLOW) {
+
+                return YELLOW;
             }
         }
+        //Otherwise, we have no winner yet
         return -1;
     }
 
-    private int validateDiagonals() {
-        //Start by moving across the first row(left to right), and check all diagonals that can fit more than 4 pieces.
-        //System.out.println("Now validating diagonals left to right");
-        //Validating the diagonals is more involved than the last two validations:
+    private int checkColumns( int currentCol){
+        //Check the column
 
-        /*First, move across the first row, validating all left diagonals (diagonals which connect the top row to the
-        left most column)*/
-        //Note that not every diagonal will contain 4 positions, so we can skip such diagonals
-        for (int i = 3; i < COLUMNS; i++) {
-            int j = 0; // Check each left diagonal in the first row
-            int k = i;
-            while (k - 3 >= 0 && j + 3 < ROWS) {
-                Set<Integer> pieces = new HashSet<>();
-                pieces.add(gameBoard[j][k]);
-                pieces.add(gameBoard[j + 1][k - 1]);
-                pieces.add(gameBoard[j + 2][k - 2]);
-                pieces.add(gameBoard[j + 3][k - 3]);
-                if (pieces.size() == 1) {
-                    if (pieces.contains(RED)) {
-                        return RED;
-                    } else if (pieces.contains(YELLOW)) {
-                        return YELLOW;
-                    }
-                }
-                j++;
-                k--;
+        //Commented out becuase we are not returning -1 unluess we seperate column checking into its own funciton
+//        if(piecesInColumn[currentCol] < 4){
+//            //If there are less than 4 game pieces in the column, there cannot be a winner here by column
+//            return -1;
+//        }
 
+        for (int i = ROWS - 1; i >= ROWS - 3; i--) {
+            if (gameBoard[i][currentCol] == RED &&
+                    gameBoard[i - 1][currentCol] == RED &&
+                    gameBoard[i - 2][currentCol] == RED &&
+                    gameBoard[i - 3][currentCol] == RED) {
+
+                return RED;
+            }
+
+            if (gameBoard[i][currentCol] == YELLOW &&
+                    gameBoard[i - 1][currentCol] == YELLOW &&
+                    gameBoard[i - 2][currentCol] == YELLOW &&
+                    gameBoard[i - 3][currentCol] == YELLOW) {
+
+                return YELLOW;
             }
 
         }
 
-        /*Then we move down the right most column and validate each diagonal
-        which connects this column to the bottom row*/
-        //Note that our previous top row diagonal validator will have checked the fist column's diagonal already
-        for (int i = 1; i < 3;i++) {
-            int j = i; // set the row number to change with i
-            int k = COLUMNS - 1;// only traverse the last column
-
-            while (j + 3 < ROWS && k - 3 >= 0) {
-                Set<Integer> pieces = new HashSet<>();
-                pieces.add(gameBoard[j][k]);
-                pieces.add(gameBoard[j + 1][k - 1]);
-                pieces.add(gameBoard[j + 2][k - 2]);
-                pieces.add(gameBoard[j + 3][k - 3]);
-
-                if (pieces.size() == 1) {
-                    if (pieces.contains(RED)) {
-                        return RED;
-                    } else if (pieces.contains(YELLOW)) {
-                        return YELLOW;
-                    }
-                }
-                j++;
-                k--;
-            }
-        }
-
-        //System.out.println("Now validating diagonals right to left");
-
-        /*Now we repeat the above process, but begin by validating each right diagonal(diagonals which connect
-        the top row to the rightmost column*/
-        //Note we can again ignore diagonals that are shorter than 4 board positions
-        for (int i = COLUMNS - 4; i >= 0; i--) {
-            //Moving across the top row from right to left, validate each diagonal
-            int j = 0; //Move across the first row
-            int k = i;// set the column number to change with i
-
-            while (j + 3 < ROWS && k + 3 < COLUMNS) {
-                Set<Integer> pieces = new HashSet<>();
-                pieces.add(gameBoard[j][k]);
-                pieces.add(gameBoard[j + 1][k + 1]);
-                pieces.add(gameBoard[j + 2][k + 2]);
-                pieces.add(gameBoard[j + 3][k + 3]);
-
-                if (pieces.size() == 1) {
-                    if (pieces.contains(RED)) {
-                        return RED;
-                    } else if (pieces.contains(YELLOW)) {
-                        return YELLOW;
-                    }
-                }
-                j++;
-                k++;
-            }
-        }
-
-       /* Lastly, move down the leftmost column and check each diagonal which connects the left most column
-        to the bottom row*/
-        for (int i = 1; i < 3; i++) {
-            //validate each diagonal here
-            int j = i;// set the row number to change with i;
-            int k = 0;// before entering the while loop, begin at the first column(column 0);
-            while (j + 3 < ROWS && k + 3 < COLUMNS) {
-                Set<Integer> pieces = new HashSet<>();
-                pieces.add(gameBoard[j][k]);
-                pieces.add(gameBoard[j + 1][k + 1]);
-                pieces.add(gameBoard[j + 2][k + 2]);
-                pieces.add(gameBoard[j + 3][k + 3]);
-
-                if (pieces.size() == 1) {
-                    if (pieces.contains(RED)) {
-                        return RED;
-                    } else if (pieces.contains(YELLOW)) {
-                        return YELLOW;
-                    }
-                }
-                j++;
-                k++;
-            }
-
-        }
+        //Otherwise we have no winner
         return -1;
+
+    }
+
+    private int checkDiagonals(int currentRow, int currentCol){
+        //Check the left-to-right upward diagonal containing the latest move
+
+        int startingRow = currentRow + 3;
+        int startingCol = currentCol - 3;
+
+        //get to a starting position that is valid on the board
+        while (startingRow > ROWS - 1 || startingCol < 0) {
+            startingRow--;
+            startingCol++;
+        }
+
+        while (startingRow - 3 >= 0 && startingCol + 3 <  COLUMNS ) {
+            if (gameBoard[startingRow][startingCol] == RED &&
+                    gameBoard[startingRow - 1][startingCol + 1] == RED &&
+                    gameBoard[startingRow - 2][startingCol + 2] == RED &&
+                    gameBoard[startingRow - 3][startingCol + 3] == RED) {
+
+                return RED;
+            }
+
+            if (gameBoard[startingRow][startingCol] == YELLOW &&
+                    gameBoard[startingRow - 1][startingCol + 1] == YELLOW &&
+                    gameBoard[startingRow - 2][startingCol + 2] == YELLOW &&
+                    gameBoard[startingRow - 3][startingCol + 3] == YELLOW) {
+
+                return YELLOW;
+            }
+            startingRow--;
+            startingCol++;
+
+
+
+        }
+
+        //Check the left to right downward diagonal containing the latest placed game piece
+
+        //Reset the starting row and column variables
+        startingRow = currentRow - 3;
+        startingCol = currentCol - 3;
+
+        while(startingRow < 0 || startingCol < 0 ){
+            startingCol++;
+            startingRow++;
+        }
+
+        while(startingRow + 3 < ROWS  && startingCol + 3 < COLUMNS ){
+            if(gameBoard[startingRow][startingCol] == RED &&
+                    gameBoard[startingRow + 1][startingCol + 1] == RED &&
+                    gameBoard[startingRow + 2][startingCol + 2] == RED &&
+                    gameBoard[startingRow + 3][startingCol + 3] == RED){
+
+                return RED;
+            }
+
+            if(gameBoard[startingRow][startingCol] == YELLOW &&
+                    gameBoard[startingRow + 1][startingCol + 1] == YELLOW &&
+                    gameBoard[startingRow + 2][startingCol + 2] == YELLOW &&
+                    gameBoard[startingRow + 3][startingCol + 3] == YELLOW){
+
+                return YELLOW;
+            }
+
+            startingRow++;
+            startingCol++;
+
+        }
+
+        //Otherwise, we have no winner yet
+        return -1;
+
     }
 
     private boolean isColumnFull(int columnNumber) {
