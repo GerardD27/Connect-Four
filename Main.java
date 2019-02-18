@@ -4,48 +4,8 @@ public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
-      //Create two players and get their names from user input
-        System.out.println("Welcome to Connect Four!");
-        System.out.println("Player 1 please enter your name: ");
-        String player1_name = scanner.nextLine();
-        System.out.println("Player 2 Enter your name: ");
-        String player2_name = scanner.nextLine();
-        Player playerOne = new Player(player1_name);
-        Player playerTwo = new Player(player2_name);
-        System.out.println(playerOne.getName() + " will be red (R on the board)");
-        System.out.println(playerTwo.getName() + " will be yellow (Y on the board)\n");
-        ConnectFour connectFour = new ConnectFour(playerOne,playerTwo);
-        connectFour.printGameBoard();
-        System.out.println("\n");
-        boolean hasWon = false;
-        while(hasWon == false){
-            System.out.println(playerOne.getName() + ", Please enter a column to make your move");
-            int move =  scanner.nextInt();
-            while(connectFour.makeMove(playerOne, move) == false){
-                System.out.println("Please try again: ");
-                move =scanner.nextInt();
-           }
-            connectFour.printGameBoard();
-            int winner = connectFour.validateGameBoard();
-            whoWon(winner);
-            if(winner != -1){
-                hasWon = false;
-                break;
-            }
-            System.out.println(playerTwo.getName() + ", Please enter a column to make your move");
-            move =  scanner.nextInt();
-            while(connectFour.makeMove(playerTwo, move) == false){
-                System.out.println("Please try again: ");
-                move =scanner.nextInt();
-            }
-            connectFour.printGameBoard();
-            winner = connectFour.validateGameBoard();
-            whoWon(winner);
-            if(winner != -1){
-                hasWon = false;
-                break;
-            }
-        }
+
+        play();
     }
 
    private static void whoWon(int winner){
@@ -64,6 +24,54 @@ public class Main {
        else{
            System.out.println("No winner yet!\n");
        }
+
+   }
+
+   private static void play(){
+       System.out.println("Welcome to Connect Four!");
+       System.out.println("Player one, please enter your name: ");
+       String name = scanner.nextLine();
+       Player playerOne = new Player(name);
+       System.out.println("Player one's name is: " + playerOne.getName());
+
+       System.out.println("Player two, please enter your name: ");
+       name = scanner.nextLine();
+       Player playerTwo = new Player(name);
+       System.out.println("Player Two's name is: " + playerTwo.getName());
+
+       ConnectFour connectFour = new ConnectFour(playerOne, playerTwo);
+       System.out.println("Here is the starting board!");
+       connectFour.printGameBoard();
+
+
+       while(true){
+           int playerMove = getPlayerMove(playerOne, connectFour);
+           connectFour.printGameBoard();
+           int winner = connectFour.checkForWinner(playerMove);
+           whoWon(winner);
+           if(winner != -1){
+               break;
+           }
+
+           playerMove = getPlayerMove(playerTwo, connectFour);
+           connectFour.printGameBoard();
+           winner = connectFour.checkForWinner(playerMove);
+           whoWon(winner);
+           if(winner != -1){
+               break;
+           }
+       }
+   }
+
+   private static int getPlayerMove(Player player , ConnectFour currentGame){
+        System.out.println(player.getName() + ",  please enter a column 1 - 7 to make your move: ");
+        int move = scanner.nextInt();
+        while(currentGame.makeMove(player, move) == false){
+            System.out.println("Invalid move choice! Please pick again: ");
+            move = scanner.nextInt();
+        }
+
+        return move;
 
    }
 
