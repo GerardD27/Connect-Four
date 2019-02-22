@@ -14,11 +14,11 @@ public class Main {
         }
 
        else if(winner == 1){
-           System.out.println("Player One wins!");
+           System.out.println("Player one wins!");
        }
 
        else if(winner == 2){
-           System.out.println("Player Two wins!");
+           System.out.println("Player two wins!");
        }
 
        else{
@@ -37,7 +37,7 @@ public class Main {
        System.out.println("Player two, please enter your name: ");
        name = scanner.nextLine();
        Player playerTwo = new Player(name);
-       System.out.println("Player Two's name is: " + playerTwo.getName());
+       System.out.println("Player two's name is: " + playerTwo.getName());
 
        ConnectFour connectFour = new ConnectFour(playerOne, playerTwo);
        System.out.println("Here is the starting board!");
@@ -64,7 +64,7 @@ public class Main {
    }
 
    private static int getPlayerMove(Player player , ConnectFour currentGame){
-        System.out.println(player.getName() + ",  please enter a column 1 - 7 to make your move: ");
+        System.out.println(player.getName() + ", please choose a column from 1 - 7 to make your move: ");
         int move = scanner.nextInt();
         while(currentGame.makeMove(player, move) == false){
             System.out.println("Invalid move choice! Please pick again: ");
