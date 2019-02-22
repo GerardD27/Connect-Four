@@ -58,6 +58,12 @@ public class ConnectFour {
 
     public int checkForWinner(int latestMove){
 
+        //If the gameboard is full, the game is a TIE
+        if(isBoardFull()){
+            // 0 indicates a TIE
+            return 0;
+        }
+
         int currentCol = latestMove - 1; //Remember, the user sees the columns numbered 1 -> 7 but our array is 0 indexed
         int currentRow = ROWS - piecesInColumn[currentCol]; // Determine which row the last piece was placed in
 
