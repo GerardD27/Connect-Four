@@ -1,3 +1,7 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ConnectFour {
     private final int[][] gameBoard;
@@ -6,8 +10,10 @@ public class ConnectFour {
     private static final int COLUMNS = 7;
     private static final int RED = 1;
     private static final int YELLOW = 2;
+    private Player playerOne;
+    private Player playerTwo;
 
-    public ConnectFour(Player playerOne, Player playerTwo) {
+    public ConnectFour() {
         this.gameBoard = new int[ROWS][COLUMNS];
         this.piecesInColumn = new int[COLUMNS];
         //Initialize each position in the game board to empty
@@ -16,6 +22,57 @@ public class ConnectFour {
                 gameBoard[i][j] = -1;
             }
         }
+
+    }
+
+    public void buildMainMenu(){
+        // Construct a main menu that welcomes players and takes their names
+
+        JFrame mainFrame = new JFrame();
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JLabel title = new JLabel("Welcome to Connect Four!");
+        Font titleFont = new Font(Font.SERIF, Font.BOLD, 20);
+        title.setFont(titleFont);
+        JPanel titlePanel = new JPanel();
+        titlePanel.add(title);
+
+        JTextField nameOne = new JTextField(10);
+        JLabel nameOneLabel = new JLabel("Player one's name:");
+        JTextField nameTwo = new JTextField(10);
+        JLabel nameTwoLabel = new JLabel("Player two's name");
+        JPanel namesPanel = new JPanel();
+        namesPanel.setLayout(new BoxLayout(namesPanel, BoxLayout.Y_AXIS));
+        namesPanel.add(nameOneLabel);
+        namesPanel.add(nameOne);
+        namesPanel.add(nameTwoLabel);
+        namesPanel.add(nameTwo);
+
+        JButton startGameButton = new JButton("Start Game!");
+
+        startGameButton.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                playerOne = new Player(nameOne.getText());
+                playerTwo = new Player(nameTwo.getText());
+                System.out.println("Welcome player one: " + playerOne.getName());
+                System.out.println("Welcome player two: " + playerTwo.getName());
+                //mainFrame.dispose();
+            }
+        });
+
+        JPanel startGamePanel = new JPanel();
+        startGamePanel.add(startGameButton);
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.add(namesPanel);
+
+        mainFrame.getContentPane().add(BorderLayout.NORTH,titlePanel);
+        mainFrame.getContentPane().add(BorderLayout.SOUTH, startGamePanel);
+        mainFrame.getContentPane().add(BorderLayout.CENTER,centerPanel);
+        mainFrame.setSize(400,200);
+        mainFrame.setVisible(true);
 
     }
 
