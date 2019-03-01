@@ -25,6 +25,11 @@ public class ConnectFour {
 
     }
 
+    public static void main(String[] args) {
+        new ConnectFour().buildMainMenu();
+
+    }
+
     public void buildMainMenu(){
         // Construct a main menu that welcomes players and takes their names
 
@@ -58,7 +63,8 @@ public class ConnectFour {
                 playerTwo = new Player(nameTwo.getText());
                 System.out.println("Welcome player one: " + playerOne.getName());
                 System.out.println("Welcome player two: " + playerTwo.getName());
-                //mainFrame.dispose();
+                mainFrame.dispose();
+                buildGameGUI();
             }
         });
 
@@ -73,6 +79,116 @@ public class ConnectFour {
         mainFrame.getContentPane().add(BorderLayout.CENTER,centerPanel);
         mainFrame.setSize(400,200);
         mainFrame.setVisible(true);
+
+    }
+
+    public void buildGameGUI(){
+
+        JFrame gameFrame = new JFrame();
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        gameFrame.setSize(500,500);
+        gameFrame.setVisible(true);
+
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem exit = new JMenuItem("Exit");
+
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        JMenuItem loadGame = new JMenuItem("Load Game");
+        //Add an action listener here for loading the game
+
+        JMenuItem saveGame = new JMenuItem("Save Game");
+        //Add an action listener here for saving the game
+
+        JMenuItem newGame = new JMenuItem("New Game");
+        //Add an action listener here for starting a new game
+
+        fileMenu.add(newGame);
+        fileMenu.add(saveGame);
+        fileMenu.add(loadGame);
+        fileMenu.add(exit);
+        menuBar.add(fileMenu);
+
+        gameFrame.getContentPane().add(BorderLayout.NORTH,menuBar);
+
+
+        //Now that we've set up the menu bar, let's work on drawing the initial game board
+
+        ConnectFourVisualizer gameVisualizer = new ConnectFourVisualizer();
+
+        gameFrame.add(BorderLayout.CENTER, gameVisualizer);
+
+    }
+
+    public class ConnectFourVisualizer extends JPanel{
+
+        private int xBackground;
+        private int yBackground;
+        private int widthBackground;
+        private int heightBackGround;
+
+        private int xGameSlot;
+        private int yGameSlot;
+        private int widthGameSlot;
+        private int heightGameSlot;
+
+
+
+        public ConnectFourVisualizer(){
+            this.widthGameSlot = 20;
+            this.heightGameSlot = 20;
+
+            this.heightBackGround = 300;
+            this.widthBackground = 350;
+
+            this.xBackground = 75;
+            this.yBackground = 100;
+        }
+
+        public void paintComponent(Graphics g){
+            g.setColor(Color.YELLOW);
+            g.fillRect(xBackground, yBackground, widthBackground, heightBackGround);
+            int currentX = xBackground + 40;
+            int currentY = yBackground + 40;
+
+            for(int i = 0; i < 6; i++) {
+
+
+                for (int j = 0; j < 7; j++) {
+                    g.setColor(Color.WHITE);
+                    g.fillOval(currentX, currentY, widthGameSlot, heightGameSlot);
+                    currentX += 40;
+
+                }
+                currentX = xBackground + 40;
+                currentY += 40;
+
+            }
+        }
+    }
+
+    public class ConnectFourSlot extends JPanel{
+
+        private int x;
+        private int y;
+        private int width;
+        private int height;
+        private Color color;
+
+        ConnectFourSlot(int x, int y){
+            this.x = x;
+            this.y = y;
+            this.width = 10;
+            this.height = 10;
+            this.color = Color.WHITE;
+        }
 
     }
 
