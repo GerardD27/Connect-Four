@@ -150,6 +150,9 @@ public class ConnectFour {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                //Make sure you add some input validation here to ensure what the user
+                //Enters is valid, and to ensure they need to pick again if the move is invalid.
+
                 int move = Integer.parseInt(moveChoiceField.getText());
                 if(totalNumTurns % 2 == 0){
                     //It's player one's turn, so make their move and after change the text to ask for player two
@@ -167,7 +170,10 @@ public class ConnectFour {
 
                 printGameBoard();
                 totalNumTurns++;
+                gameVisualizer.repaint();
             }
+
+            
         });
 
 
@@ -208,7 +214,16 @@ public class ConnectFour {
 
 
                 for (int j = 0; j < 7; j++) {
-                    g.setColor(Color.WHITE);
+                    if(gameBoard[i][j] == RED){
+                        g.setColor(Color.RED);
+                    }
+                    else if(gameBoard[i][j] == YELLOW){
+                        g.setColor(Color.BLACK);
+                    }
+                    else{
+                        g.setColor(Color.WHITE);
+                    }
+
                     g.fillOval(currentX, currentY, widthGameSlot, heightGameSlot);
                     currentX += 40;
 
