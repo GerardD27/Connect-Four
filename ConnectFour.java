@@ -12,6 +12,7 @@ public class ConnectFour {
     private static final int YELLOW = 2;
     private Player playerOne;
     private Player playerTwo;
+    private int totalNumTurns;
 
     public ConnectFour() {
         this.gameBoard = new int[ROWS][COLUMNS];
@@ -22,6 +23,8 @@ public class ConnectFour {
                 gameBoard[i][j] = -1;
             }
         }
+
+        this.totalNumTurns = 0;
 
     }
 
@@ -109,6 +112,9 @@ public class ConnectFour {
 
         JMenuItem newGame = new JMenuItem("New Game");
         //Add an action listener here for starting a new game
+        // Start a new game by calling the clear board function to wipe the underlying data structure
+        // Then, repaint the board using the connect four visualizer to the original(default) state
+        // Then reset the total number of turns and show the correct(player one's) name on the label
 
         fileMenu.add(newGame);
         fileMenu.add(saveGame);
@@ -124,6 +130,46 @@ public class ConnectFour {
         ConnectFourVisualizer gameVisualizer = new ConnectFourVisualizer();
 
         gameFrame.add(BorderLayout.CENTER, gameVisualizer);
+
+        //Add the functionality to choose a column to place a game piece in
+
+        JPanel chooseMovePanel = new JPanel();
+        JLabel chooseMoveLabel = new JLabel( playerOne.getName() + ", Choose a column from 1 to 7: ");
+        JTextField moveChoiceField = new JTextField(5);
+        JButton chooseMoveButton = new JButton("Choose");
+
+        chooseMovePanel.add(chooseMoveLabel);
+        chooseMovePanel.add(moveChoiceField);
+        chooseMovePanel.add(chooseMoveButton);
+
+        gameFrame.getContentPane().add(BorderLayout.SOUTH, chooseMovePanel);
+
+         //Store the number of turns the game takes to complete
+
+        chooseMoveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                int move = Integer.parseInt(moveChoiceField.getText());
+                if(totalNumTurns % 2 == 0){
+                    //It's player one's turn, so make their move and after change the text to ask for player two
+                    makeMove(playerOne, move);
+                    chooseMoveLabel.setText(playerTwo.getName() + ", choose a column from 1 to 7:");
+                    moveChoiceField.setText("");
+                }
+
+                else{
+                    //Otherwise it's player two's turn, so make their move and change the text to ask for player one
+                    makeMove(playerTwo, move);
+                    chooseMoveLabel.setText(playerOne.getName() + ", choose a column from 1 to 7:");
+                    moveChoiceField.setText("");
+                }
+
+                printGameBoard();
+                totalNumTurns++;
+            }
+        });
+
 
     }
 
@@ -174,23 +220,6 @@ public class ConnectFour {
         }
     }
 
-    public class ConnectFourSlot extends JPanel{
-
-        private int x;
-        private int y;
-        private int width;
-        private int height;
-        private Color color;
-
-        ConnectFourSlot(int x, int y){
-            this.x = x;
-            this.y = y;
-            this.width = 10;
-            this.height = 10;
-            this.color = Color.WHITE;
-        }
-
-    }
 
     public boolean makeMove(Player player, int column) {
         /* Since row position is determined by how many pieces are currently in a given column,
