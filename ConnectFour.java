@@ -171,9 +171,25 @@ public class ConnectFour {
                 printGameBoard();
                 totalNumTurns++;
                 gameVisualizer.repaint();
+
+                int hasWinner = checkForWinner(move);
+                if(hasWinner != -1){
+                    moveChoiceField.setEnabled(false);
+                    chooseMoveButton.setEnabled(false);
+                    if(hasWinner == RED){
+                        chooseMoveLabel.setText(playerOne.getName() + " wins!");
+
+                    }
+
+                    else if(hasWinner == YELLOW){
+                        chooseMoveLabel.setText(playerTwo.getName() + " wins!");
+                    }
+                }
+
+
             }
 
-            
+
         });
 
 
