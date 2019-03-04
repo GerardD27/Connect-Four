@@ -93,9 +93,18 @@ public class ConnectFour {
         gameFrame.setSize(500,500);
         gameFrame.setVisible(true);
 
+        ConnectFourVisualizer gameVisualizer = new ConnectFourVisualizer();
+
+        gameFrame.add(BorderLayout.CENTER, gameVisualizer);
+
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         JMenuItem exit = new JMenuItem("Exit");
+
+        JPanel chooseMovePanel = new JPanel();
+        JLabel chooseMoveLabel = new JLabel( playerOne.getName() + ", Choose a column from 1 to 7: ");
+        JTextField moveChoiceField = new JTextField(5);
+        JButton chooseMoveButton = new JButton("Choose");
 
         exit.addActionListener(new ActionListener() {
             @Override
@@ -115,6 +124,21 @@ public class ConnectFour {
         // Start a new game by calling the clear board function to wipe the underlying data structure
         // Then, repaint the board using the connect four visualizer to the original(default) state
         // Then reset the total number of turns and show the correct(player one's) name on the label
+        //Finally allow the user to use the text field and button which were disabled upon last games win
+
+        newGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clearBoard();
+                gameVisualizer.repaint();
+                totalNumTurns = 0;
+                piecesInColumn = new int[COLUMNS];
+                chooseMoveLabel.setText(playerOne.getName() + ", Choose a column from 1 to 7: ");
+                moveChoiceField.setEnabled(true);
+                chooseMoveButton.setEnabled(true);
+
+            }
+        });
 
         fileMenu.add(newGame);
         fileMenu.add(saveGame);
@@ -127,16 +151,11 @@ public class ConnectFour {
 
         //Now that we've set up the menu bar, let's work on drawing the initial game board
 
-        ConnectFourVisualizer gameVisualizer = new ConnectFourVisualizer();
 
-        gameFrame.add(BorderLayout.CENTER, gameVisualizer);
 
         //Add the functionality to choose a column to place a game piece in
 
-        JPanel chooseMovePanel = new JPanel();
-        JLabel chooseMoveLabel = new JLabel( playerOne.getName() + ", Choose a column from 1 to 7: ");
-        JTextField moveChoiceField = new JTextField(5);
-        JButton chooseMoveButton = new JButton("Choose");
+
 
         chooseMovePanel.add(chooseMoveLabel);
         chooseMovePanel.add(moveChoiceField);
