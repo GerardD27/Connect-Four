@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Scanner;
 
-public class Player {
+public class Player implements Serializable {
 
     private final String name;
     private static int counter = 0;
