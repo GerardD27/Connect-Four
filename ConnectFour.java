@@ -2,9 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
-public class ConnectFour {
-    private final int[][] gameBoard;
+public class ConnectFour implements Serializable {
+    private int[][] gameBoard;
     private int[] piecesInColumn; // Each index keeps track of how many game pieces are currently in the corresponding column
     private static final int ROWS = 6;
     private static final int COLUMNS = 7;
@@ -115,9 +116,15 @@ public class ConnectFour {
 
         JMenuItem loadGame = new JMenuItem("Load Game");
         //Add an action listener here for loading the game
+        //1.) Restore the state of connect four object from the connect_four.ser file
+        //2.) Repaint the game board gui to display the previous state's game board and allow the game to continue
 
         JMenuItem saveGame = new JMenuItem("Save Game");
         //Add an action listener here for saving the game
+        //The current connect four object state will need to be saved, including:
+        //1.) The player objects
+        //2.) The game board 2-D array object
+        //3.) The total number of turns played in the game
 
         JMenuItem newGame = new JMenuItem("New Game");
         //Add an action listener here for starting a new game
@@ -137,6 +144,61 @@ public class ConnectFour {
                 moveChoiceField.setEnabled(true);
                 chooseMoveButton.setEnabled(true);
 
+            }
+        });
+
+        saveGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    FileOutputStream fileOutputStream = new FileOutputStream("connect_four.ser");
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                    objectOutputStream.writeObject(ConnectFour.this);
+                    objectOutputStream.close();
+                    fileOutputStream.close();
+                }catch (IOException ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        loadGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+
+                    ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("connect_four.ser"));
+                    ConnectFour previousGame = (ConnectFour) objectInputStream.readObject();
+                    ConnectFour.this.gameBoard = previousGame.gameBoard;
+                    ConnectFour.this.piecesInColumn = previousGame.piecesInColumn;
+                    ConnectFour.this.playerOne = previousGame.playerOne;
+                    ConnectFour.this.playerTwo = previousGame.playerTwo;
+                    ConnectFour.this.totalNumTurns = previousGame.totalNumTurns;
+
+                    //We have to fix which player name is displayed upon loading, it just reverts back to the
+                    //initial message currently
+
+                    //Also, if the game has already been won we can save that game but buttons will be
+                    //enabled and the display will still be wrong, so we need to either disable the save
+                    // button upon a successful win or display the label and enable the textfield and buttons
+                    // correctly
+                    System.out.println("The number of turns is: " + totalNumTurns);
+
+                    //Notice here were determining whose turn it was when the game is saved
+                    if(totalNumTurns % 2 == 0){
+                        chooseMoveLabel.setText(playerOne.getName() + ", choose a column from 1 to 7");
+                    }
+
+                    else{
+                        chooseMoveLabel.setText(playerTwo.getName() + ", choose a column from 1 to 7");
+                    }
+
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+
+                gameVisualizer.repaint();
+                printGameBoard();
             }
         });
 
@@ -171,7 +233,10 @@ public class ConnectFour {
 
                 //Make sure you add some input validation here to ensure what the user
                 //Enters is valid, and to ensure they need to pick again if the move is invalid.
+                // we can utilize the return value of the makemove function to do this;
 
+
+                //Notice here we're displaying whose turn in is after the current player makes their move
                 int move = Integer.parseInt(moveChoiceField.getText());
                 if(totalNumTurns % 2 == 0){
                     //It's player one's turn, so make their move and after change the text to ask for player two
@@ -195,6 +260,7 @@ public class ConnectFour {
                 if(hasWinner != -1){
                     moveChoiceField.setEnabled(false);
                     chooseMoveButton.setEnabled(false);
+                    saveGame.setEnabled(false);
                     if(hasWinner == RED){
                         chooseMoveLabel.setText(playerOne.getName() + " wins!");
 
@@ -225,8 +291,6 @@ public class ConnectFour {
         private int yGameSlot;
         private int widthGameSlot;
         private int heightGameSlot;
-
-
 
         public ConnectFourVisualizer(){
             this.widthGameSlot = 20;
@@ -425,8 +489,6 @@ public class ConnectFour {
             }
             startingRow--;
             startingCol++;
-
-
 
         }
 
