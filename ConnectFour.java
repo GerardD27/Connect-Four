@@ -63,6 +63,7 @@ public class ConnectFour implements Serializable {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                //Once we press start game, create player objects based on the names, close the window and open a new window with the game GUI
                 playerOne = new Player(nameOne.getText());
                 playerTwo = new Player(nameTwo.getText());
                 System.out.println("Welcome player one: " + playerOne.getName());
@@ -108,6 +109,7 @@ public class ConnectFour implements Serializable {
         JButton chooseMoveButton = new JButton("Choose");
 
         exit.addActionListener(new ActionListener() {
+            //Close the window and stop the program if the user clicks exit
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
@@ -120,27 +122,18 @@ public class ConnectFour implements Serializable {
         //2.) Repaint the game board gui to display the previous state's game board and allow the game to continue
 
         JMenuItem saveGame = new JMenuItem("Save Game");
-        //Add an action listener here for saving the game
-        //The current connect four object state will need to be saved, including:
-        //1.) The player objects
-        //2.) The game board 2-D array object
-        //3.) The total number of turns played in the game
-
         JMenuItem newGame = new JMenuItem("New Game");
-        //Add an action listener here for starting a new game
-        // Start a new game by calling the clear board function to wipe the underlying data structure
-        // Then, repaint the board using the connect four visualizer to the original(default) state
-        // Then reset the total number of turns and show the correct(player one's) name on the label
-        //Finally allow the user to use the text field and button which were disabled upon last games win
 
         newGame.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //Reset the board and redraw the visual representation based on the empty board
                 clearBoard();
                 gameVisualizer.repaint();
                 totalNumTurns = 0;
                 piecesInColumn = new int[COLUMNS];
                 chooseMoveLabel.setText(playerOne.getName() + ", Choose a column from 1 to 7: ");
+                //Re-enable the buttons and text field in case the previous game had a winner
                 moveChoiceField.setEnabled(true);
                 chooseMoveButton.setEnabled(true);
 
@@ -167,6 +160,7 @@ public class ConnectFour implements Serializable {
             public void actionPerformed(ActionEvent e) {
                 try {
 
+                    //Set the current Connect four object references and values equal to the previously saved games values
                     ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("connect_four.ser"));
                     ConnectFour previousGame = (ConnectFour) objectInputStream.readObject();
                     ConnectFour.this.gameBoard = previousGame.gameBoard;
@@ -175,18 +169,11 @@ public class ConnectFour implements Serializable {
                     ConnectFour.this.playerTwo = previousGame.playerTwo;
                     ConnectFour.this.totalNumTurns = previousGame.totalNumTurns;
 
-                    //We have to fix which player name is displayed upon loading, it just reverts back to the
-                    //initial message currently
-
-                    //Also, if the game has already been won we can save that game but buttons will be
-                    //enabled and the display will still be wrong, so we need to either disable the save
-                    // button upon a successful win or display the label and enable the textfield and buttons
-                    // correctly
                     System.out.println("The number of turns is: " + totalNumTurns);
 
-                    //Notice here were determining whose turn it was when the game is saved
+                    //Determine whose turn it was when the game was saved, and display the appropriate label
                     if(totalNumTurns % 2 == 0){
-                        chooseMoveLabel.setText(playerOne.getName() + ", choose a column from 1 to 7");
+                        chooseMoveLabel.setText(playerOne.getName() + ", choose a column from 1 to 7:");
                     }
 
                     else{
@@ -196,12 +183,13 @@ public class ConnectFour implements Serializable {
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
-
+                //Redraw the game gui no correctly show the loaded game state
                 gameVisualizer.repaint();
                 printGameBoard();
             }
         });
 
+        //Add the menu items to the menua bar
         fileMenu.add(newGame);
         fileMenu.add(saveGame);
         fileMenu.add(loadGame);
@@ -211,51 +199,45 @@ public class ConnectFour implements Serializable {
         gameFrame.getContentPane().add(BorderLayout.NORTH,menuBar);
 
 
-        //Now that we've set up the menu bar, let's work on drawing the initial game board
-
-
-
-        //Add the functionality to choose a column to place a game piece in
-
-
-
         chooseMovePanel.add(chooseMoveLabel);
         chooseMovePanel.add(moveChoiceField);
         chooseMovePanel.add(chooseMoveButton);
 
         gameFrame.getContentPane().add(BorderLayout.SOUTH, chooseMovePanel);
 
-         //Store the number of turns the game takes to complete
 
         chooseMoveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                //Make sure you add some input validation here to ensure what the user
-                //Enters is valid, and to ensure they need to pick again if the move is invalid.
-                // we can utilize the return value of the makemove function to do this;
-
-
                 //Notice here we're displaying whose turn in is after the current player makes their move
                 int move = Integer.parseInt(moveChoiceField.getText());
                 if(totalNumTurns % 2 == 0){
                     //It's player one's turn, so make their move and after change the text to ask for player two
-                    makeMove(playerOne, move);
+                   boolean attempt =  makeMove(playerOne, move);
+                   if(attempt == false){
+                       chooseMoveLabel.setText("That was an invalid move, please try again " + playerOne.getName()+ ":");
+                       moveChoiceField.setText("");
+                       return;
+                   }
                     chooseMoveLabel.setText(playerTwo.getName() + ", choose a column from 1 to 7:");
                     moveChoiceField.setText("");
                 }
 
                 else{
                     //Otherwise it's player two's turn, so make their move and change the text to ask for player one
-                    makeMove(playerTwo, move);
+                     boolean attempt = makeMove(playerTwo, move);
+                     if(attempt == false){
+                         chooseMoveLabel.setText("That was an invalid move, please try again " + playerTwo.getName() + ":");
+                         moveChoiceField.setText("");
+                         return;
+                     }
                     chooseMoveLabel.setText(playerOne.getName() + ", choose a column from 1 to 7:");
                     moveChoiceField.setText("");
                 }
-
                 printGameBoard();
                 totalNumTurns++;
                 gameVisualizer.repaint();
-
                 int hasWinner = checkForWinner(move);
                 if(hasWinner != -1){
                     moveChoiceField.setEnabled(false);
@@ -265,28 +247,19 @@ public class ConnectFour implements Serializable {
                         chooseMoveLabel.setText(playerOne.getName() + " wins!");
 
                     }
-
                     else if(hasWinner == YELLOW){
                         chooseMoveLabel.setText(playerTwo.getName() + " wins!");
                     }
                 }
-
-
             }
-
-
         });
-
-
     }
 
     public class ConnectFourVisualizer extends JPanel{
-
         private int xBackground;
         private int yBackground;
         private int widthBackground;
         private int heightBackGround;
-
         private int xGameSlot;
         private int yGameSlot;
         private int widthGameSlot;
@@ -356,13 +329,13 @@ public class ConnectFour implements Serializable {
         /*Otherwise, start from the bottom of the column and change the value in
         the first open row to the player's number*/
         else {
-//            for (int i = ROWS - 1; i >= 0; i--) {
-//                if (gameBoard[i][column] == -1) {
-//                    gameBoard[i][column] = player.getPlayerNumber();
-//                    break;
-//                }
-//            }
-//            return true;
+        //            for (int i = ROWS - 1; i >= 0; i--) {
+        //                if (gameBoard[i][column] == -1) {
+        //                    gameBoard[i][column] = player.getPlayerNumber();
+        //                    break;
+        //                }
+        //            }
+        //            return true;
             int nextOpenRow = ROWS - 1 - piecesInColumn[column];
             gameBoard[nextOpenRow][column] = player.getPlayerNumber();
             piecesInColumn[column]++;
@@ -429,11 +402,10 @@ public class ConnectFour implements Serializable {
     private int checkColumns( int currentCol){
         //Check the column
 
-        //Commented out becuase we are not returning -1 unluess we seperate column checking into its own funciton
-//        if(piecesInColumn[currentCol] < 4){
-//            //If there are less than 4 game pieces in the column, there cannot be a winner here by column
-//            return -1;
-//        }
+        //        if(piecesInColumn[currentCol] < 4){
+        //            //If there are less than 4 game pieces in the column, there cannot be a winner here by column
+        //            return -1;
+        //        }
 
         for (int i = ROWS - 1; i >= ROWS - 3; i--) {
             if (gameBoard[i][currentCol] == RED &&
