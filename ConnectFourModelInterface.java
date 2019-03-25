@@ -10,4 +10,7 @@ public interface ConnectFourModelInterface {
     Player getPlayerOne();
     Player getPlayerTwo();
     int getTotalNumTurns();
+    void registerObserver(ConnectFourObserver observer);
+    void removeObserver(ConnectFourObserver observer);
+    void notifyObservers();
 }
