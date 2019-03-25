@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConnectFourModel implements ConnectFourModelInterface{
 
     private int[][] gameBoard;
@@ -9,6 +12,22 @@ public class ConnectFourModel implements ConnectFourModelInterface{
     private static final int COLUMNS = 7;
     private static final int RED = 1;
     private static final int YELLOW = 2;
+    private List<ConnectFourObserver> connectFourObserverList;
+
+    public ConnectFourModel() {
+        this.gameBoard = new int[ROWS][COLUMNS];
+        this.piecesInColumn = new int[COLUMNS];
+        this.totalNumTurns = 0;
+        this.connectFourObserverList = new ArrayList<>();
+
+        //Initialize each game board position to empty
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLUMNS; j++) {
+                gameBoard[i][j] = -1;
+            }
+        }
+
+    }
 
     @Override
     public boolean makeMove(Player player, int columnNumber) {
@@ -42,6 +61,9 @@ public class ConnectFourModel implements ConnectFourModelInterface{
             int nextOpenRow = ROWS - 1 - piecesInColumn[columnNumber];
             gameBoard[nextOpenRow][columnNumber] = player.getPlayerNumber();
             piecesInColumn[columnNumber]++;
+            //Note we're not incrementing total num turns here. Maybe we should THINK ABOUT IT
+            //Our model should notify our observers that our state has changed
+            notifyObservers();
             return true;
         }
     }
@@ -79,5 +101,23 @@ public class ConnectFourModel implements ConnectFourModelInterface{
     @Override
     public int getTotalNumTurns() {
         return totalNumTurns;
+    }
+
+    @Override
+    public void registerObserver(ConnectFourObserver observer) {
+        connectFourObserverList.add(observer);
+    }
+
+    @Override
+    public void removeObserver(ConnectFourObserver observer) {
+        connectFourObserverList.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        // Add code that updates all observers on necessary model state here
+        for(ConnectFourObserver observer: connectFourObserverList){
+            observer.update();
+        }
     }
 }
