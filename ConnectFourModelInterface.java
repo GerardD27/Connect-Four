@@ -9,6 +9,8 @@ public interface ConnectFourModelInterface {
     int[] getPiecesInColumns();
     Player getPlayerOne();
     Player getPlayerTwo();
+    void setPlayerOne(Player playerOne);
+    void setPlayerTwo(Player playerTwo);
     int getTotalNumTurns();
     void registerObserver(ConnectFourObserver observer);
     void removeObserver(ConnectFourObserver observer);

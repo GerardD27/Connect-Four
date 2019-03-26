@@ -104,6 +104,16 @@ public class ConnectFourModel implements ConnectFourModelInterface{
     }
 
     @Override
+    public void setPlayerOne(Player playerOne) {
+        this.playerOne = playerOne;
+    }
+
+    @Override
+    public void setPlayerTwo(Player playerTwo) {
+        this.playerTwo = playerTwo;
+    }
+
+    @Override
     public void registerObserver(ConnectFourObserver observer) {
         connectFourObserverList.add(observer);
     }
