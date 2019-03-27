@@ -61,8 +61,12 @@ public class ConnectFourModel implements ConnectFourModelInterface{
             int nextOpenRow = ROWS - 1 - piecesInColumn[columnNumber];
             gameBoard[nextOpenRow][columnNumber] = player.getPlayerNumber();
             piecesInColumn[columnNumber]++;
+
             //Note we're not incrementing total num turns here. Maybe we should THINK ABOUT IT
             //Our model should notify our observers that our state has changed
+
+            //Follow up note: adding incrementation to totalNumTurns here
+            totalNumTurns++;
             notifyObservers();
             return true;
         }
